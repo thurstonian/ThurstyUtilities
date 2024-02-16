@@ -7,6 +7,23 @@ function Test-ElevatedPrivileges {
 	}
 }
 
+function Test-AdobeLicense {
+	[CmdletBinding()]
+	param(
+		[string]$LastName
+	)
+    (Get-ADGroup -Identity "Adobe Pro Licensed Users" -Properties Member).Member | Select-String -Pattern $LastName
+}
+
+function Remove-ReaderAddin {
+	$Installed = Get-ItemProperty -Path "HKLM:\Software\wow6432node\microsoft\Windows\Currentversion\uninstall\*", "HKLM:\Software\microsoft\Windows\Currentversion\uninstall\*"
+	If ($null -ne ($Installed | Where-Object { $_.DisplayName -like "*Reader*" })) {
+		If (Test-Path "C:\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\plug_ins\IManAcrobatReader10.api") {
+			Remove-Item -Force "C:\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\plug_ins\IManAcrobatReader10.api"
+		}
+	}
+}
+
 function Register-DefaultPSRepository {
 	If ($null -eq (Get-PSRepository -Name "PSGallery")) {
 		If (((Get-Host).Version).Major -gt 5) {
