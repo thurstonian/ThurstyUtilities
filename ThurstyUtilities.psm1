@@ -16,8 +16,8 @@ function Test-AdobeLicense {
 }
 
 function Remove-ReaderAddin {
-	$Installed = Get-ItemProperty -Path "HKLM:\Software\wow6432node\microsoft\Windows\Currentversion\uninstall\*", "HKLM:\Software\microsoft\Windows\Currentversion\uninstall\*"
-	If ($null -ne ($Installed | Where-Object { $_.DisplayName -like "*Reader*" })) {
+	If ($null -ne (Get-ItemProperty -Path "HKLM:\Software\wow6432node\microsoft\Windows\Currentversion\uninstall\*", "HKLM:\Software\microsoft\Windows\Currentversion\uninstall\*" |
+			Where-Object { $_.DisplayName -like "*Reader*" })) {
 		If (Test-Path "C:\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\plug_ins\IManAcrobatReader10.api") {
 			Remove-Item -Force "C:\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\plug_ins\IManAcrobatReader10.api"
 		}
