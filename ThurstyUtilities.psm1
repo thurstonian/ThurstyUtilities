@@ -10,12 +10,14 @@ function Test-ElevatedPrivileges {
 function Test-AdobeLicense {
 	[CmdletBinding()]
 	param(
+		[Parameter(Mandatory)]	
 		[string]$LastName
 	)
     (Get-ADGroup -Identity "Adobe Pro Licensed Users" -Properties Member).Member | Select-String -Pattern $LastName
 }
 
 function Remove-ReaderAddin {
+	Test-ElevatedPrivileges
 	If ($null -ne (Get-ItemProperty -Path "HKLM:\Software\wow6432node\microsoft\Windows\Currentversion\uninstall\*", "HKLM:\Software\microsoft\Windows\Currentversion\uninstall\*" |
 			Where-Object { $_.DisplayName -like "*Reader*" })) {
 		If (Test-Path "C:\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\plug_ins\IManAcrobatReader10.api") {
@@ -70,6 +72,7 @@ function Install-AdminTools {
 }
 
 function Stop-Umbrella {
+	Test-ElevatedPrivileges
 	Get-Service -Name "*umbrellaagent*" | Where-Object { $_.Status -eq "Running" } | Stop-Service
 	Get-Service -Name "*swgagent*" | Where-Object { $_.Status -eq "Running" } | Stop-Service
 }
