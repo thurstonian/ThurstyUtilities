@@ -59,7 +59,6 @@ function Install-WinGet {
 		Expand-Archive -LiteralPath ($AdminPath + "xaml.zip") -DestinationPath ($env:TEMP + "xaml")
 		Add-AppxPackage ($env:TEMP + "xaml\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.8.appx") -AllUsers
 	}
-	Write-Host "Downloading Package Manager..."
 	$WingetVersion = [System.Net.WebRequest]::Create($WingetUrl + "latest").GetResponse().ResponseUri.OriginalString.split('/')[-1].Trim('v')
 	Invoke-WebRequest -Uri ($WingetUrl + "download/v" + $WingetVersion + "/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle") -OutFile ($env:TEMP + "winget.msixbundle")
 	Add-AppxPackage ($env:TEMP + "winget.msixbundle")
@@ -68,4 +67,13 @@ function Install-WinGet {
 function Install-AdminTools {
 	Register-DefaultPSRepository
 	Install-WinGet
+}
+
+function Stop-Umbrella {
+	Get-Service -Name "*umbrellaagent*" | Where-Object { $_.Status -eq "Running" } | Stop-Service
+	Get-Service -Name "*swgagent*" | Where-Object { $_.Status -eq "Running" } | Stop-Service
+}
+
+function Add-ExhibitStamps {
+	Copy-Item -Path "\\cozen\deploy\source\Adobe\Pro DC\Exhibit Stamp\Exhibit-Stamp.pdf" -Destination "$env:APPDATA\Adobe\Acrobat\DC\Stamps"
 }
