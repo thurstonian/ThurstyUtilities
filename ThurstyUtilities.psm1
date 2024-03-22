@@ -40,6 +40,13 @@ function Register-DefaultPSRepository {
 	}
 }
 
+function Remove-WindowsHelloPin {
+    Test-ElevatedPrivileges
+    takeown /f "C:\Windows\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" /r /d y >nul
+    icacls "C:\WINDOWS\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" /reset /t /c /l /q
+    Remove-Item -Path "C:\WINDOWS\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" -Recurse -Force
+}
+
 function Set-LAPSPassword {
 	[CmdletBinding()]
 	param (
