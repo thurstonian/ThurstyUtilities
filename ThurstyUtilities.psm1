@@ -22,17 +22,9 @@ function Register-DefaultPSRepository {
 }
 
 function Remove-WindowsHelloPin {
-    CheckForAdmin
-    takeown /f C:\Windows\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc /r /d y >nul
-    $acl = Get-Acl -Path "C:\Users"
-    $sysRule = New-Object System.Security.AccessControl.FileSystemAccessRule("NT AUTHORITY\SYSTEM", "FullControl", "Allow")
-    $admRule = New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\Administrators", "FullControl", "Allow")
-    
-    $acl.SetAccessRule($sysRule)
-    $acl.AddAccessRule($admRule)
-    
-    Get-ChildItem -Path "C:\WINDOWS\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" -Recurse -Force | Set-Acl ($acl)
-    
+    Test-ElevatedPrivileges
+    takeown /f "C:\Windows\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" /r /d y >nul
+    icacls "C:\WINDOWS\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" /reset /t /c /l /q
     Remove-Item -Path "C:\WINDOWS\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" -Recurse -Force
 }
 
