@@ -17,13 +17,50 @@ function Test-AdobeLicense {
 }
 
 function Remove-ReaderAddin {
+	[CmdletBinding()]
+	param(
+		[Parameter(Mandatory)]
+		[string]$PCName
+	)
+	$AddinPath = "\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\plug_ins\IManAcrobatReader10.api"
+
 	Test-ElevatedPrivileges
-	If ($null -ne (Get-ItemProperty -Path "HKLM:\Software\wow6432node\microsoft\Windows\Currentversion\uninstall\*", "HKLM:\Software\microsoft\Windows\Currentversion\uninstall\*" |
-			Where-Object { $_.DisplayName -like "*Reader*" })) {
-		If (Test-Path "C:\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\plug_ins\IManAcrobatReader10.api") {
-			Remove-Item -Force "C:\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\plug_ins\IManAcrobatReader10.api"
+
+	# Check for Adobe Reader on local machine
+
+	$ReaderInstalled = $false
+
+	$BaseKey = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey("LocalMachine", $PCName) # Gets remote HKLM Base Key
+
+	# Search 32 Bit Programs
+	$32BitKeys = $BaseKey.OpenSubKey("Software\wow6432node\microsoft\Windows\Currentversion\uninstall")
+	$32BitKeys.GetSubKeyNames() | ForEach-Object {
+		$SubKey = $32BitKeys.OpenSubKey($_)
+		If ($SubKey.GetValue("DisplayName") -like "*Reader*") { 
+			$ReaderInstalled = $true
 		}
+		$SubKey.Close()
 	}
+	$32BitKeys.Close()
+
+	# Search 64 Bit Programs
+	$64BitKeys = $BaseKey.OpenSubKey("Software\microsoft\Windows\Currentversion\uninstall")
+	$64BitKeys.GetSubKeyNames() | ForEach-Object {
+		$SubKey = $64BitKeys.OpenSubKey($_)
+		If ($SubKey.GetValue("DisplayName") -like "*Reader*") { 
+			$ReaderInstalled = $true
+		}
+		$SubKey.Close()
+	}
+	$64BitKeys.Close()
+
+	$BaseKey.Close()
+
+	If ($ReaderInstalled -and (Test-Path ("\\" + $PCName + "\c$" + $AddinPath))) {
+		Remove-Item -Force ("\\" + $PCName + "\c$" + $AddinPath)
+	}
+
+	
 }
 
 function Register-DefaultPSRepository {
