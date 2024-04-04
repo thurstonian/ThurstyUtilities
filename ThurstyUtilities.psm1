@@ -38,29 +38,33 @@ function Remove-ReaderAddin {
 		$SubKey = $32BitKeys.OpenSubKey($_)
 		If ($SubKey.GetValue("DisplayName") -like "*Reader*") { 
 			$ReaderInstalled = $true
+			$SubKey.Close()
+			Break
 		}
 		$SubKey.Close()
 	}
 	$32BitKeys.Close()
 
 	# Search 64 Bit Programs
-	$64BitKeys = $BaseKey.OpenSubKey("Software\microsoft\Windows\Currentversion\uninstall")
-	$64BitKeys.GetSubKeyNames() | ForEach-Object {
-		$SubKey = $64BitKeys.OpenSubKey($_)
-		If ($SubKey.GetValue("DisplayName") -like "*Reader*") { 
-			$ReaderInstalled = $true
+	If (-not $ReaderInstalled) {
+		$64BitKeys = $BaseKey.OpenSubKey("Software\microsoft\Windows\Currentversion\uninstall")
+		$64BitKeys.GetSubKeyNames() | ForEach-Object {
+			$SubKey = $64BitKeys.OpenSubKey($_)
+			If ($SubKey.GetValue("DisplayName") -like "*Reader*") { 
+				$ReaderInstalled = $true
+				$SubKey.Close()
+				Break
+			}
+			$SubKey.Close()
 		}
-		$SubKey.Close()
+		$64BitKeys.Close()
 	}
-	$64BitKeys.Close()
 
 	$BaseKey.Close()
 
 	If ($ReaderInstalled -and (Test-Path ("\\" + $PCName + "\c$" + $AddinPath))) {
 		Remove-Item -Force ("\\" + $PCName + "\c$" + $AddinPath)
 	}
-
-	
 }
 
 function Register-DefaultPSRepository {
@@ -78,10 +82,10 @@ function Register-DefaultPSRepository {
 }
 
 function Remove-WindowsHelloPin {
-    Test-ElevatedPrivileges
-    takeown /f "C:\Windows\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" /r /d y >nul
-    icacls "C:\WINDOWS\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" /reset /t /c /l /q
-    Remove-Item -Path "C:\WINDOWS\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" -Recurse -Force
+	Test-ElevatedPrivileges
+	takeown /f "C:\Windows\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" /r /d y >nul
+	icacls "C:\WINDOWS\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" /reset /t /c /l /q
+	Remove-Item -Path "C:\WINDOWS\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" -Recurse -Force
 }
 
 function Set-LAPSPassword {
