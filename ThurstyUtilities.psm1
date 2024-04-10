@@ -73,8 +73,8 @@ function Remove-ReaderAddin {
 
 	$BaseKey.Close()
 
-	Write-Host "Attempting to remove the Reader addin from the $PCName..."
 	If ($ReaderInstalled -and (Test-Path ("\\" + $PCName + "\c$" + $AddinPath))) {
+		Write-Host "Attempting to remove the Reader addin from the $PCName..."
 		Remove-Item -Force ("\\" + $PCName + "\c$" + $AddinPath)
 	}
 }
