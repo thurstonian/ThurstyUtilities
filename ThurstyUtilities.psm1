@@ -1,5 +1,12 @@
 function Add-ExhibitStamps {
-	Copy-Item -Path "\\cozen\deploy\source\Adobe\Pro DC\Exhibit Stamp\Exhibit-Stamp.pdf" -Destination "$env:APPDATA\Adobe\Acrobat\DC\Stamps"
+	[CmdletBinding()]
+	param(
+		[Parameter(Mandatory)]
+		[string]$PCName,
+		[Parameter(Mandatory)]
+		[string]$UserName
+	)
+	Copy-Item -Path "\\cozen\deploy\source\Adobe\Pro DC\Exhibit Stamp\Exhibit-Stamp.pdf" -Destination "\\$PCName\c$\Users\$UserName\Adobe\Acrobat\DC\Stamps"
 }
 
 function Install-AdminTools {
