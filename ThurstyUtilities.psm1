@@ -7,6 +7,15 @@ function Test-ElevatedPrivileges {
 	}
 }
 
+function Test-MgGraph {
+	If ($null -eq (Get-Module -Name Microsoft.Graph*)) {
+		throw "Microsoft Graph is not initialized; Install the PowerShell module or run Install-AdminTools"
+	} ElseIf ($null -ne (Get-MgContext)) {
+		Write-Error "Microsoft Graph already connected. Disconnecting..."
+		Disconnect-MgGraph >nul
+	}
+}
+
 function Test-AdobeLicense {
 	[CmdletBinding()]
 	param(
@@ -99,6 +108,26 @@ function Set-LAPSPassword {
 	$ExpirationTime = w32tm -ntte $password.'ms-Mcs-AdmPwdExpirationTime'
 	Write-Host "Password:" $password.'ms-Mcs-AdmPwd'
 	Write-host "Expiration:" $ExpirationTime
+}
+
+function New-TAP {
+	[CmdletBinding()]
+	param (
+		[Parameter(Mandatory)]
+		[string]$Email
+	)
+
+	$reqBody = @{
+		startDateTime     = Get-Date
+		lifetimeInMinutes = 480
+		isUsableOnce      = $false
+	}
+
+	Test-MgGraph
+
+	Connect-MgGraph -Scopes "UserAuthenticationMethod.ReadWrite.All" -NoWelcome
+	Write-Host (New-MgUserAuthenticationTemporaryAccessPassMethod -UserId $Email -BodyParameter ($reqBody | ConvertTo-Json)).TemporaryAccessPass
+	(Disconnect-MgGraph) >nul
 }
 
 function Install-WinGet {
