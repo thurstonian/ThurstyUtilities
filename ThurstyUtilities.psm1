@@ -41,11 +41,12 @@ function Remove-ReaderAddin {
 
 	$BaseKey = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey("LocalMachine", $PCName) # Gets remote HKLM Base Key
 
-	# Search 32 Bit Programs
+	Write-Host "Searching 32Bit Programs..."
 	$32BitKeys = $BaseKey.OpenSubKey("Software\wow6432node\microsoft\Windows\Currentversion\uninstall")
 	$32BitKeys.GetSubKeyNames() | ForEach-Object {
 		$SubKey = $32BitKeys.OpenSubKey($_)
 		If ($SubKey.GetValue("DisplayName") -like "*Reader*") { 
+			Write-Host "Adobe Reader Located!"
 			$ReaderInstalled = $true
 			$SubKey.Close()
 			Break
@@ -54,12 +55,13 @@ function Remove-ReaderAddin {
 	}
 	$32BitKeys.Close()
 
-	# Search 64 Bit Programs
+	Write-Host "Searching 64Bit Programs..."
 	If (-not $ReaderInstalled) {
 		$64BitKeys = $BaseKey.OpenSubKey("Software\microsoft\Windows\Currentversion\uninstall")
 		$64BitKeys.GetSubKeyNames() | ForEach-Object {
 			$SubKey = $64BitKeys.OpenSubKey($_)
-			If ($SubKey.GetValue("DisplayName") -like "*Reader*") { 
+			If ($SubKey.GetValue("DisplayName") -like "*Reader*") {
+				Write-Host "Adobe Reader Located!"
 				$ReaderInstalled = $true
 				$SubKey.Close()
 				Break
@@ -71,6 +73,7 @@ function Remove-ReaderAddin {
 
 	$BaseKey.Close()
 
+	Write-Host "Attempting to remove the Reader addin from the $PCName..."
 	If ($ReaderInstalled -and (Test-Path ("\\" + $PCName + "\c$" + $AddinPath))) {
 		Remove-Item -Force ("\\" + $PCName + "\c$" + $AddinPath)
 	}
@@ -80,8 +83,7 @@ function Register-DefaultPSRepository {
 	If ($null -eq (Get-PSRepository -Name "PSGallery")) {
 		If (((Get-Host).Version).Major -gt 5) {
 			Register-PSRepository -Default -InstallationPolicy Trusted
-		}
-		Else {
+		} Else {
 			Register-PSRepository -Name PSGallery -SourceLocation https://www.powershellgallery.com/api/v2/ -InstallationPolicy Trusted
 		}
 	}
