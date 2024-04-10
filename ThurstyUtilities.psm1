@@ -2,11 +2,11 @@ function Add-ExhibitStamps {
 	[CmdletBinding()]
 	param(
 		[Parameter(Mandatory)]
-		[string]$PCName,
+		[string]$ComputerName,
 		[Parameter(Mandatory)]
 		[string]$UserName
 	)
-	Copy-Item -Path "\\cozen\deploy\source\Adobe\Pro DC\Exhibit Stamp\Exhibit-Stamp.pdf" -Destination "\\$PCName\c$\Users\$UserName\Adobe\Acrobat\DC\Stamps"
+	Copy-Item -Path "\\cozen\deploy\source\Adobe\Pro DC\Exhibit Stamp\Exhibit-Stamp.pdf" -Destination "\\$ComputerName\c$\Users\$UserName\Adobe\Acrobat\DC\Stamps"
 }
 
 function Install-AdminTools {
@@ -56,7 +56,7 @@ function Remove-ReaderAddin {
 	[CmdletBinding()]
 	param(
 		[Parameter(Mandatory)]
-		[string]$PCName
+		[string]$ComputerName
 	)
 	$AddinPath = "\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\plug_ins\IManAcrobatReader10.api"
 
@@ -66,7 +66,7 @@ function Remove-ReaderAddin {
 
 	$ReaderInstalled = $false
 
-	$BaseKey = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey("LocalMachine", $PCName) # Gets remote HKLM Base Key
+	$BaseKey = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey("LocalMachine", $ComputerName) # Gets remote HKLM Base Key
 
 	Write-Host "Searching 32Bit Programs..."
 	$32BitKeys = $BaseKey.OpenSubKey("Software\wow6432node\microsoft\Windows\Currentversion\uninstall")
@@ -100,9 +100,9 @@ function Remove-ReaderAddin {
 
 	$BaseKey.Close()
 
-	If ($ReaderInstalled -and (Test-Path ("\\" + $PCName + "\c$" + $AddinPath))) {
-		Write-Host "Attempting to remove the Reader addin from the $PCName..."
-		Remove-Item -Force ("\\" + $PCName + "\c$" + $AddinPath)
+	If ($ReaderInstalled -and (Test-Path ("\\" + $ComputerName + "\c$" + $AddinPath))) {
+		Write-Host "Attempting to remove the Reader addin from the $ComputerName..."
+		Remove-Item -Force ("\\" + $ComputerName + "\c$" + $AddinPath)
 	}
 }
 
@@ -130,10 +130,10 @@ function Set-LAPSPassword {
 	[CmdletBinding()]
 	param (
 		[Parameter(Mandatory)]
-		[string]$PCName
+		[string]$ComputerName
 	)
 
-	$password = Get-ADComputer $PCName -Properties * | Select-Object ms-mcs-a*
+	$password = Get-ADComputer $ComputerName -Properties * | Select-Object ms-mcs-a*
 	$ExpirationTime = w32tm -ntte $password.'ms-Mcs-AdmPwdExpirationTime'
 	Write-Host "Password:" $password.'ms-Mcs-AdmPwd'
 	Write-Host "Expiration:" $ExpirationTime
