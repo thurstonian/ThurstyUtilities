@@ -117,6 +117,7 @@ function Install-WinGet {
 function Install-AdminTools {
 	Register-DefaultPSRepository
 	Install-WinGet
+	Install-Module -Name Microsoft.Graph
 }
 
 function Stop-Umbrella {
