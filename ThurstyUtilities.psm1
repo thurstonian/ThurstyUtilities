@@ -9,8 +9,12 @@ function Install-AdminTools {
 }
 
 function Install-WinGet {
+	If ($null -ne (Get-Command "winget" -ErrorAction SilentlyContinue)) {
+		Write-Host "Winget is already installed."
+		Return
+	}
 	$WingetUrl = "https://github.com/microsoft/winget-cli/releases/"
-	If (($null -eq (Get-AppxPackage "Microsoft.UI.Xaml.2.7*" -AllUsers)) -and ($null -eq (Get-AppxPackage "Microsoft.UI.Xaml.2.8*" -AllUsers))) {
+	If ($null -eq (Get-AppxPackage "Microsoft.UI.Xaml.2.8*" -AllUsers)) {
 		Write-Host "Downloading Microsoft UI XAML..."
 		Invoke-WebRequest -Uri "https://www.nuget.org/api/v2/package/Microsoft.UI.Xaml" -OutFile ($env:TEMP + "xaml.zip")
 		Expand-Archive -LiteralPath ($AdminPath + "xaml.zip") -DestinationPath ($env:TEMP + "xaml")
