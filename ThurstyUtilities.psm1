@@ -1,28 +1,44 @@
-function Test-ElevatedPrivileges {
-	[CmdletBinding()]
-	$identity = [Security.Principal.WindowsIdentity]::GetCurrent()
-	$principal = New-Object Security.Principal.WindowsPrincipal $identity
-	If (-Not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-		throw "Not running with elevated privileges"
-	}
+function Add-ExhibitStamps {
+	Copy-Item -Path "\\cozen\deploy\source\Adobe\Pro DC\Exhibit Stamp\Exhibit-Stamp.pdf" -Destination "$env:APPDATA\Adobe\Acrobat\DC\Stamps"
 }
 
-function Test-MgGraph {
-	If ($null -eq (Get-Module -Name Microsoft.Graph*)) {
-		throw "Microsoft Graph is not initialized; Install the PowerShell module or run Install-AdminTools"
-	} ElseIf ($null -ne (Get-MgContext)) {
-		Write-Error "Microsoft Graph already connected. Disconnecting..."
-		Disconnect-MgGraph >nul
-	}
+function Install-AdminTools {
+	Set-DefaultPSRepository
+	Install-WinGet
+	Install-Module -Name Microsoft.Graph
 }
 
-function Test-AdobeLicense {
+function Install-WinGet {
+	$WingetUrl = "https://github.com/microsoft/winget-cli/releases/"
+	If (($null -eq (Get-AppxPackage "Microsoft.UI.Xaml.2.7*" -AllUsers)) -and ($null -eq (Get-AppxPackage "Microsoft.UI.Xaml.2.8*" -AllUsers))) {
+		Write-Host "Downloading Microsoft UI XAML..."
+		Invoke-WebRequest -Uri "https://www.nuget.org/api/v2/package/Microsoft.UI.Xaml" -OutFile ($env:TEMP + "xaml.zip")
+		Expand-Archive -LiteralPath ($AdminPath + "xaml.zip") -DestinationPath ($env:TEMP + "xaml")
+		Add-AppxPackage ($env:TEMP + "xaml\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.8.appx") -AllUsers
+	}
+	$WingetVersion = [System.Net.WebRequest]::Create($WingetUrl + "latest").GetResponse().ResponseUri.OriginalString.split('/')[-1].Trim('v')
+	Invoke-WebRequest -Uri ($WingetUrl + "download/v" + $WingetVersion + "/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle") -OutFile ($env:TEMP + "winget.msixbundle")
+	Add-AppxPackage ($env:TEMP + "winget.msixbundle")
+}
+
+function New-TAP {
 	[CmdletBinding()]
-	param(
-		[Parameter(Mandatory)]	
-		[string]$LastName
+	param (
+		[Parameter(Mandatory)]
+		[string]$Email
 	)
-    (Get-ADGroup -Identity "Adobe Pro Licensed Users" -Properties Member).Member | Select-String -Pattern $LastName
+
+	$reqBody = @{
+		startDateTime     = Get-Date
+		lifetimeInMinutes = 480
+		isUsableOnce      = $false
+	}
+
+	Test-MgGraph
+
+	Connect-MgGraph -Scopes "UserAuthenticationMethod.ReadWrite.All" -NoWelcome
+	Write-Host (New-MgUserAuthenticationTemporaryAccessPassMethod -UserId $Email -BodyParameter ($reqBody | ConvertTo-Json)).TemporaryAccessPass
+	(Disconnect-MgGraph) >nul
 }
 
 function Remove-ReaderAddin {
@@ -79,7 +95,14 @@ function Remove-ReaderAddin {
 	}
 }
 
-function Register-DefaultPSRepository {
+function Remove-WindowsHelloPin {
+	Test-ElevatedPrivileges
+	takeown /f "C:\Windows\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" /r /d y >nul
+	icacls "C:\WINDOWS\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" /reset /t /c /l /q
+	Remove-Item -Path "C:\WINDOWS\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" -Recurse -Force
+}
+
+function Set-DefaultPSRepository {
 	If ($null -eq (Get-PSRepository -Name "PSGallery")) {
 		If (((Get-Host).Version).Major -gt 5) {
 			Register-PSRepository -Default -InstallationPolicy Trusted
@@ -92,13 +115,6 @@ function Register-DefaultPSRepository {
 	}
 }
 
-function Remove-WindowsHelloPin {
-	Test-ElevatedPrivileges
-	takeown /f "C:\Windows\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" /r /d y >nul
-	icacls "C:\WINDOWS\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" /reset /t /c /l /q
-	Remove-Item -Path "C:\WINDOWS\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" -Recurse -Force
-}
-
 function Set-LAPSPassword {
 	[CmdletBinding()]
 	param (
@@ -106,49 +122,10 @@ function Set-LAPSPassword {
 		[string]$PCName
 	)
 
-	$password = get-adcomputer $PCName -properties * | Select-Object ms-mcs-a*
+	$password = Get-ADComputer $PCName -Properties * | Select-Object ms-mcs-a*
 	$ExpirationTime = w32tm -ntte $password.'ms-Mcs-AdmPwdExpirationTime'
 	Write-Host "Password:" $password.'ms-Mcs-AdmPwd'
-	Write-host "Expiration:" $ExpirationTime
-}
-
-function New-TAP {
-	[CmdletBinding()]
-	param (
-		[Parameter(Mandatory)]
-		[string]$Email
-	)
-
-	$reqBody = @{
-		startDateTime     = Get-Date
-		lifetimeInMinutes = 480
-		isUsableOnce      = $false
-	}
-
-	Test-MgGraph
-
-	Connect-MgGraph -Scopes "UserAuthenticationMethod.ReadWrite.All" -NoWelcome
-	Write-Host (New-MgUserAuthenticationTemporaryAccessPassMethod -UserId $Email -BodyParameter ($reqBody | ConvertTo-Json)).TemporaryAccessPass
-	(Disconnect-MgGraph) >nul
-}
-
-function Install-WinGet {
-	$WingetUrl = "https://github.com/microsoft/winget-cli/releases/"
-	If (($null -eq (Get-AppxPackage "Microsoft.UI.Xaml.2.7*" -AllUsers)) -and ($null -eq (Get-AppxPackage "Microsoft.UI.Xaml.2.8*" -AllUsers))) {
-		Write-Host "Downloading Microsoft UI XAML..."
-		Invoke-WebRequest -Uri "https://www.nuget.org/api/v2/package/Microsoft.UI.Xaml" -OutFile ($env:TEMP + "xaml.zip")
-		Expand-Archive -LiteralPath ($AdminPath + "xaml.zip") -DestinationPath ($env:TEMP + "xaml")
-		Add-AppxPackage ($env:TEMP + "xaml\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.8.appx") -AllUsers
-	}
-	$WingetVersion = [System.Net.WebRequest]::Create($WingetUrl + "latest").GetResponse().ResponseUri.OriginalString.split('/')[-1].Trim('v')
-	Invoke-WebRequest -Uri ($WingetUrl + "download/v" + $WingetVersion + "/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle") -OutFile ($env:TEMP + "winget.msixbundle")
-	Add-AppxPackage ($env:TEMP + "winget.msixbundle")
-}
-
-function Install-AdminTools {
-	Register-DefaultPSRepository
-	Install-WinGet
-	Install-Module -Name Microsoft.Graph
+	Write-Host "Expiration:" $ExpirationTime
 }
 
 function Stop-Umbrella {
@@ -157,6 +134,29 @@ function Stop-Umbrella {
 	Get-Service -Name "*swgagent*" | Where-Object { $_.Status -eq "Running" } | Stop-Service
 }
 
-function Add-ExhibitStamps {
-	Copy-Item -Path "\\cozen\deploy\source\Adobe\Pro DC\Exhibit Stamp\Exhibit-Stamp.pdf" -Destination "$env:APPDATA\Adobe\Acrobat\DC\Stamps"
+function Test-AdobeLicense {
+	[CmdletBinding()]
+	param(
+		[Parameter(Mandatory)]	
+		[string]$LastName
+	)
+    (Get-ADGroup -Identity "Adobe Pro Licensed Users" -Properties Member).Member | Select-String -Pattern $LastName
+}
+
+function Test-ElevatedPrivileges {
+	[CmdletBinding()]
+	$identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+	$principal = New-Object Security.Principal.WindowsPrincipal $identity
+	If (-Not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+		throw "Not running with elevated privileges"
+	}
+}
+
+function Test-MgGraph {
+	If ($null -eq (Get-Module -Name Microsoft.Graph*)) {
+		throw "Microsoft Graph is not initialized; Install the PowerShell module or run Install-AdminTools"
+	} ElseIf ($null -ne (Get-MgContext)) {
+		Write-Error "Microsoft Graph already connected. Disconnecting..."
+		Disconnect-MgGraph >nul
+	}
 }
