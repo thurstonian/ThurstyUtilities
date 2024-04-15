@@ -105,7 +105,13 @@ function Remove-ReaderAddin {
 
 	If ($ReaderInstalled -and (Test-Path ("\\" + $ComputerName + "\c$" + $AddinPath))) {
 		Write-Host "Attempting to remove the Reader addin from the $ComputerName..."
-		Remove-Item -Force ("\\" + $ComputerName + "\c$" + $AddinPath)
+		While((Test-Path ("\\" + $ComputerName + "\c$" + $AddinPath))) {
+			Remove-Item -Force ("\\" + $ComputerName + "\c$" + $AddinPath)
+		}
+	}
+
+	If (-not (Test-Path ("\\" + $ComputerName + "\c$" + $AddinPath))) {
+		Write-Host "Reader addin successfully removed!"
 	}
 }
 
