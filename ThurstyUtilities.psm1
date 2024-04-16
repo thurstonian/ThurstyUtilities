@@ -69,12 +69,15 @@ function Remove-ReaderAddin {
 
 	$ReaderInstalled = $false
 
+	Write-Host "Fetching remote registry keys..."
 	$BaseKey = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey("LocalMachine", $ComputerName) # Gets remote HKLM Base Key
+
+	If($null -ne $BaseKey) { Write-Host "Success!" }
 
 	Write-Host "Searching 32Bit Programs..."
 	$32BitKeys = $BaseKey.OpenSubKey("Software\wow6432node\microsoft\Windows\Currentversion\uninstall")
-	$32BitKeys.GetSubKeyNames() | ForEach-Object {
-		$SubKey = $32BitKeys.OpenSubKey($_)
+	ForEach ($Key in $32BitKeys.GetSubKeyNames()) {
+		$SubKey = $32BitKeys.OpenSubKey($Key)
 		If ($SubKey.GetValue("DisplayName") -like "*Reader*") { 
 			Write-Host "Adobe Reader Located!"
 			$ReaderInstalled = $true
@@ -85,11 +88,11 @@ function Remove-ReaderAddin {
 	}
 	$32BitKeys.Close()
 
-	Write-Host "Searching 64Bit Programs..."
 	If (-not $ReaderInstalled) {
+		Write-Host "Searching 64Bit Programs..."
 		$64BitKeys = $BaseKey.OpenSubKey("Software\microsoft\Windows\Currentversion\uninstall")
-		$64BitKeys.GetSubKeyNames() | ForEach-Object {
-			$SubKey = $64BitKeys.OpenSubKey($_)
+		ForEach ($Key in $64BitKeys.GetSubKeyNames()) {
+			$SubKey = $64BitKeys.OpenSubKey($Key)
 			If ($SubKey.GetValue("DisplayName") -like "*Reader*") {
 				Write-Host "Adobe Reader Located!"
 				$ReaderInstalled = $true
