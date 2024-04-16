@@ -160,9 +160,9 @@ function Test-AdobeLicense {
 	[CmdletBinding()]
 	param(
 		[Parameter(Mandatory)]	
-		[string]$LastName
+		[string]$SearchFor
 	)
-    (Get-ADGroup -Identity "Adobe Pro Licensed Users" -Properties Member).Member | Select-String -Pattern $LastName
+    (Get-ADGroup -Identity "Adobe Pro Licensed Users" -Properties Member).Member | Select-String -Pattern $SearchFor
 }
 
 function Test-ElevatedPrivileges {
