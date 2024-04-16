@@ -145,10 +145,9 @@ function Set-LAPSPassword {
 		[string]$ComputerName
 	)
 
-	$password = Get-ADComputer $ComputerName -Properties * | Select-Object ms-mcs-a*
-	$ExpirationTime = w32tm -ntte $password.'ms-Mcs-AdmPwdExpirationTime'
-	Write-Host "Password:" $password.'ms-Mcs-AdmPwd'
-	Write-Host "Expiration:" $ExpirationTime
+	$Password = Get-LAPSADPassword $ComputerName -AsPlainText
+	Write-Host ("Password: " + $Password.Password)
+	Write-Host ("Expiration: " + $Password.ExpirationTimestamp)
 }
 
 function Stop-Umbrella {
