@@ -12,10 +12,10 @@
 RootModule = 'ThurstyUtilities.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.1'
+ModuleVersion = '0.1.0'
 
 # Supported PSEditions
-# CompatiblePSEditions = @()
+CompatiblePSEditions = @("Core")
 
 # ID used to uniquely identify this module
 GUID = 'b99a91e5-8ac9-4078-84b6-65c3b37c9bd5'
@@ -30,10 +30,10 @@ CompanyName = 'Unknown'
 Copyright = '(c) Simon Thurston. All rights reserved.'
 
 # Description of the functionality provided by this module
-# Description = ''
+Description = 'Utility cmdlets for common work tasks'
 
 # Minimum version of the PowerShell engine required by this module
-# PowerShellVersion = ''
+PowerShellVersion = '7'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
@@ -51,7 +51,7 @@ Copyright = '(c) Simon Thurston. All rights reserved.'
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-# RequiredModules = @()
+RequiredModules = @("Microsoft.Graph", "ExchangeOnlineManagement")
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
