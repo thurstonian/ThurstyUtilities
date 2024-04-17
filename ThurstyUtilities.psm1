@@ -9,6 +9,23 @@ function Add-ExhibitStamps {
 	Copy-Item -Path "\\cozen\deploy\source\Adobe\Pro DC\Exhibit Stamp\Exhibit-Stamp.pdf" -Destination "\\$ComputerName\c$\Users\$UserName\Adobe\Acrobat\DC\Stamps"
 }
 
+function Connect-EXO {
+	$Identity = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name -Split "\\"
+	Connect-ExchangeOnline -UserPrincipalName ("" + $Identity[1] + "@" + $Identity[1] + ".com") -ShowBanner:$false
+}
+
+function Import-Dependency {
+	[CmdletBinding()]
+	param (
+		[Parameter(Mandatory)]
+		[String]$Dependency
+	)
+	Install-Module -Name $Dependency
+	If ($null -eq (Get-Module -Name "$Dependency*")) {
+		Import-Module -Name $Dependency
+	}
+}
+
 function Install-AdminTools {
 	Set-DefaultPSRepository
 	Install-WinGet
