@@ -157,7 +157,7 @@ function Test-ElevatedPrivileges {
 	}
 }
 
-function Test-EXOModule {
+function Test-EXOConnection {
 	If ($null -ne (Get-ConnectionInformation)) {
 		Write-Error "Exchange Online already connected. Disconnecting..."
 		Disconnect-ExchangeOnline -Confirm:$false
@@ -170,7 +170,7 @@ function Test-EXOMoved {
 		[Parameter(Mandatory)]
 		[String]$Email
 	)
-	Test-EXOModule
+	Test-EXOConnection
 	Connect-EXO
 	$Mailbox = Get-EXOMailbox -Identity $Email 2>nul
 	Disconnect-ExchangeOnline -Confirm:$false
