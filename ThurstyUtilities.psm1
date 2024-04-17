@@ -29,10 +29,8 @@ function Import-Dependency {
 function Install-AdminTools {
 	Set-DefaultPSRepository
 	Install-WinGet
-	Install-Module -Name Microsoft.Graph
-	If ($null -eq (Get-Module -Name Microsoft.Graph*)) {
-		Import-Module -Name Microsoft.Graph
-	}
+	Import-Dependency Microsoft.Graph
+	Import-Dependency ExchangeOnlineManagement
 }
 
 function Install-WinGet {
