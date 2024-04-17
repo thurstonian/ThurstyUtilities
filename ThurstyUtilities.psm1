@@ -20,6 +20,7 @@ function Import-Dependency {
 		[Parameter(Mandatory)]
 		[String]$Dependency
 	)
+	Test-ElevatedPrivileges
 	Install-Module -Name $Dependency
 	If ($null -eq (Get-Module -Name "$Dependency*")) {
 		Import-Module -Name $Dependency
@@ -27,6 +28,7 @@ function Import-Dependency {
 }
 
 function Install-AdminTools {
+	Test-ElevatedPrivileges
 	Set-DefaultPSRepository
 	Install-WinGet
 	Import-Dependency Microsoft.Graph
