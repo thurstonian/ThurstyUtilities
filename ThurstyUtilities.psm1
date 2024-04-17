@@ -14,27 +14,6 @@ function Connect-EXO {
 	Connect-ExchangeOnline -UserPrincipalName ("" + $Identity[1] + "@" + $Identity[0] + ".com") -ShowBanner:$false
 }
 
-function Import-Dependency {
-	[CmdletBinding()]
-	param (
-		[Parameter(Mandatory)]
-		[String]$Dependency
-	)
-	Test-ElevatedPrivileges
-	Install-Module -Name $Dependency
-	If ($null -eq (Get-Module -Name "$Dependency*")) {
-		Import-Module -Name $Dependency
-	}
-}
-
-function Install-AdminTools {
-	Test-ElevatedPrivileges
-	Set-DefaultPSRepository
-	Install-WinGet
-	Import-Dependency Microsoft.Graph
-	Import-Dependency ExchangeOnlineManagement
-}
-
 function Install-WinGet {
 	If ($null -ne (Get-Command "winget" -ErrorAction SilentlyContinue)) {
 		Write-Host "Winget is already installed."
@@ -142,19 +121,6 @@ function Remove-WindowsHelloPin {
 	Remove-Item -Path "C:\WINDOWS\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" -Recurse -Force
 }
 
-function Set-DefaultPSRepository {
-	If ($null -eq (Get-PSRepository -Name "PSGallery")) {
-		If (((Get-Host).Version).Major -gt 5) {
-			Register-PSRepository -Default -InstallationPolicy Trusted
-		} Else {
-			Register-PSRepository -Name PSGallery -SourceLocation https://www.powershellgallery.com/api/v2/ -InstallationPolicy Trusted
-		}
-	}
-	If ((Get-PSRepository -Name "PSGallery").InstallationPolicy -ne "Trusted") {
-		Set-PSRepository -Name "PSGallery" -InstallationPolicy "Trusted"
-	}
-}
-
 function Set-LAPSPassword {
 	[CmdletBinding()]
 	param (
@@ -192,9 +158,7 @@ function Test-ElevatedPrivileges {
 }
 
 function Test-EXOModule {
-	If ($null -eq (Get-Module -Name ExchangeOnlineManagement*)) {
-		throw "Exchange Online is not initialized; Install the PowerShell module or run Install-AdminTools"
-	} ElseIf ($null -ne (Get-ConnectionInformation)) {
+	If ($null -ne (Get-ConnectionInformation)) {
 		Write-Error "Exchange Online already connected. Disconnecting..."
 		Disconnect-ExchangeOnline -Confirm:$false
 	}
@@ -219,9 +183,7 @@ function Test-EXOMoved {
 }
 
 function Test-MgGraph {
-	If ($null -eq (Get-Module -Name Microsoft.Graph*)) {
-		throw "Microsoft Graph is not initialized; Install the PowerShell module or run Install-AdminTools"
-	} ElseIf ($null -ne (Get-MgContext)) {
+	If ($null -ne (Get-MgContext)) {
 		Write-Error "Microsoft Graph already connected. Disconnecting..."
 		Disconnect-MgGraph >nul
 	}
