@@ -33,7 +33,7 @@ Copyright = '(c) Simon Thurston. All rights reserved.'
 Description = 'Utility cmdlets for common work tasks'
 
 # Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '7'
+PowerShellVersion = '7.0.0'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
