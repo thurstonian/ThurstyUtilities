@@ -189,6 +189,15 @@ function Test-ElevatedPrivileges {
 	}
 }
 
+function Test-EXOModule {
+	If ($null -eq (Get-Module -Name ExchangeOnlineManagement*)) {
+		throw "Exchange Online is not initialized; Install the PowerShell module or run Install-AdminTools"
+	} ElseIf ($null -ne (Get-ConnectionInformation)) {
+		Write-Error "Exchange Online already connected. Disconnecting..."
+		Disconnect-ExchangeOnline -Confirm:$false
+	}
+}
+
 function Test-MgGraph {
 	If ($null -eq (Get-Module -Name Microsoft.Graph*)) {
 		throw "Microsoft Graph is not initialized; Install the PowerShell module or run Install-AdminTools"
