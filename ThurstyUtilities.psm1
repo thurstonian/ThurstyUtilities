@@ -11,7 +11,7 @@ function Add-ExhibitStamps {
 
 function Connect-EXO {
 	$Identity = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name -Split "\\"
-	Connect-ExchangeOnline -UserPrincipalName ("" + $Identity[1] + "@" + $Identity[1] + ".com") -ShowBanner:$false
+	Connect-ExchangeOnline -UserPrincipalName ("" + $Identity[1] + "@" + $Identity[0] + ".com") -ShowBanner:$false
 }
 
 function Import-Dependency {
