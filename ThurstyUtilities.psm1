@@ -45,7 +45,6 @@ function New-TAP {
 	}
 
 	Test-MgGraph
-
 	Connect-MgGraph -Scopes "UserAuthenticationMethod.ReadWrite.All" -NoWelcome
 	Write-Host (New-MgUserAuthenticationTemporaryAccessPassMethod -UserId $Email -BodyParameter ($reqBody | ConvertTo-Json)).TemporaryAccessPass
 	(Disconnect-MgGraph) >nul
@@ -127,7 +126,6 @@ function Set-LAPSPassword {
 		[Parameter(Mandatory)]
 		[String]$ComputerName
 	)
-
 	$Password = Get-LapsADPassword $ComputerName -AsPlainText
 	Write-Host ("Password: " + $Password.Password)
 	Write-Host ("Expiration: " + $Password.ExpirationTimestamp)
