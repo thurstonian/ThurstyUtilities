@@ -2,9 +2,9 @@ function Add-ExhibitStamps {
 	[CmdletBinding()]
 	param(
 		[Parameter(Mandatory)]
-		[string]$ComputerName,
+		[String]$ComputerName,
 		[Parameter(Mandatory)]
-		[string]$UserName
+		[String]$UserName
 	)
 	Copy-Item -Path "\\cozen\deploy\source\Adobe\Pro DC\Exhibit Stamp\Exhibit-Stamp.pdf" -Destination "\\$ComputerName\c$\Users\$UserName\Adobe\Acrobat\DC\Stamps"
 }
@@ -39,7 +39,7 @@ function New-TAP {
 	[CmdletBinding()]
 	param (
 		[Parameter(Mandatory)]
-		[string]$Email
+		[String]$Email
 	)
 
 	$reqBody = @{
@@ -59,7 +59,7 @@ function Remove-ReaderAddin {
 	[CmdletBinding()]
 	param(
 		[Parameter(Mandatory)]
-		[string]$ComputerName
+		[String]$ComputerName
 	)
 	$AddinPath = "\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\plug_ins\IManAcrobatReader10.api"
 
@@ -72,7 +72,7 @@ function Remove-ReaderAddin {
 	Write-Host "Fetching remote registry keys..."
 	$BaseKey = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey("LocalMachine", $ComputerName) # Gets remote HKLM Base Key
 
-	If($null -ne $BaseKey) { Write-Host "Success!" }
+	If ($null -ne $BaseKey) { Write-Host "Success!" }
 
 	Write-Host "Searching 32Bit Programs..."
 	$32BitKeys = $BaseKey.OpenSubKey("Software\wow6432node\microsoft\Windows\Currentversion\uninstall")
@@ -108,7 +108,7 @@ function Remove-ReaderAddin {
 
 	If ($ReaderInstalled -and (Test-Path ("\\" + $ComputerName + "\c$" + $AddinPath))) {
 		Write-Host "Attempting to remove the Reader addin from the $ComputerName..."
-		While((Test-Path ("\\" + $ComputerName + "\c$" + $AddinPath))) {
+		While ((Test-Path ("\\" + $ComputerName + "\c$" + $AddinPath))) {
 			Remove-Item -Force ("\\" + $ComputerName + "\c$" + $AddinPath)
 		}
 	}
@@ -142,10 +142,10 @@ function Set-LAPSPassword {
 	[CmdletBinding()]
 	param (
 		[Parameter(Mandatory)]
-		[string]$ComputerName
+		[String]$ComputerName
 	)
 
-	$Password = Get-LAPSADPassword $ComputerName -AsPlainText
+	$Password = Get-LapsADPassword $ComputerName -AsPlainText
 	Write-Host ("Password: " + $Password.Password)
 	Write-Host ("Expiration: " + $Password.ExpirationTimestamp)
 }
