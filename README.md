@@ -41,9 +41,8 @@ Below is a list of cmdlets, their parameters, and a brief description of what th
 Remotely installs Exhibit Stamps for a user's Adobe Acrobat.
 
 Parameters:
-
-	- ComputerName (Required)
-	- UserName (Required)
+- ComputerName (Required)
+- UserName (Required)
 
 ### Connect-EXO
 
@@ -58,16 +57,14 @@ Installs the WinGet Package Manager if it's not installed already.
 Generates a new Temporary Access Pass for a given user. Valid for 8 hours.
 
 Parameters:
-
-	- Email (Required)
+- Email (Required)
 
 ### Remove-ReaderAddin
 
 Removes the corrupt Adobe Reader addin (IManAcrobatReader10.api) from a remote computer.
 
 Parameters:
-
-	- ComputerName (Required)
+- ComputerName (Required)
 
 ### Remove-WindowsHelloPin
 
@@ -78,8 +75,7 @@ Attempts to remove Windows Hello pins from the local computer.
 Gets the currently active LAPS password for a given computer.
 
 Parameters:
-
-	- ComputerName (Required)
+- ComputerName (Required)
 
 ### Stop-Umbrella
 
@@ -90,8 +86,7 @@ Stops all running instances of Cisco Umbrella on the current computer.
 Checks in Active Directory to see if a user has been assigned with an Adobe License. Does a pattern match over the Distringuihed Name, so you can search by first name, last name, domain, or organizational unit.
 
 Parameters:
-
-	- SearchFor (Required)
+- SearchFor (Required)
 
 ### Test-ElevatedPrivileges
 
@@ -106,8 +101,7 @@ Checks if there is an active Exchange Online connection, and closes it if there 
 Checks Exchange Online to see if a users mailbox has been migrated.
 
 Parameters:
-
-	- Email (Required)
+- Email (Required)
 
 ### Test-MgGraph
 
