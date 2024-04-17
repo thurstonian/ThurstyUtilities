@@ -2,20 +2,35 @@ function Add-ExhibitStamps {
 	[CmdletBinding()]
 	param(
 		[Parameter(Mandatory)]
-		[string]$ComputerName,
+		[String]$ComputerName,
 		[Parameter(Mandatory)]
-		[string]$UserName
+		[String]$UserName
 	)
 	Copy-Item -Path "\\cozen\deploy\source\Adobe\Pro DC\Exhibit Stamp\Exhibit-Stamp.pdf" -Destination "\\$ComputerName\c$\Users\$UserName\Adobe\Acrobat\DC\Stamps"
+}
+
+function Connect-EXO {
+	$Identity = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name -Split "\\"
+	Connect-ExchangeOnline -UserPrincipalName ("" + $Identity[1] + "@" + $Identity[0] + ".com") -ShowBanner:$false
+}
+
+function Import-Dependency {
+	[CmdletBinding()]
+	param (
+		[Parameter(Mandatory)]
+		[String]$Dependency
+	)
+	Install-Module -Name $Dependency
+	If ($null -eq (Get-Module -Name "$Dependency*")) {
+		Import-Module -Name $Dependency
+	}
 }
 
 function Install-AdminTools {
 	Set-DefaultPSRepository
 	Install-WinGet
-	Install-Module -Name Microsoft.Graph
-	If ($null -eq (Get-Module -Name Microsoft.Graph*)) {
-		Import-Module -Name Microsoft.Graph
-	}
+	Import-Dependency Microsoft.Graph
+	Import-Dependency ExchangeOnlineManagement
 }
 
 function Install-WinGet {
@@ -39,7 +54,7 @@ function New-TAP {
 	[CmdletBinding()]
 	param (
 		[Parameter(Mandatory)]
-		[string]$Email
+		[String]$Email
 	)
 
 	$reqBody = @{
@@ -59,7 +74,7 @@ function Remove-ReaderAddin {
 	[CmdletBinding()]
 	param(
 		[Parameter(Mandatory)]
-		[string]$ComputerName
+		[String]$ComputerName
 	)
 	$AddinPath = "\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\plug_ins\IManAcrobatReader10.api"
 
@@ -72,7 +87,7 @@ function Remove-ReaderAddin {
 	Write-Host "Fetching remote registry keys..."
 	$BaseKey = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey("LocalMachine", $ComputerName) # Gets remote HKLM Base Key
 
-	If($null -ne $BaseKey) { Write-Host "Success!" }
+	If ($null -ne $BaseKey) { Write-Host "Success!" }
 
 	Write-Host "Searching 32Bit Programs..."
 	$32BitKeys = $BaseKey.OpenSubKey("Software\wow6432node\microsoft\Windows\Currentversion\uninstall")
@@ -108,7 +123,7 @@ function Remove-ReaderAddin {
 
 	If ($ReaderInstalled -and (Test-Path ("\\" + $ComputerName + "\c$" + $AddinPath))) {
 		Write-Host "Attempting to remove the Reader addin from the $ComputerName..."
-		While((Test-Path ("\\" + $ComputerName + "\c$" + $AddinPath))) {
+		While ((Test-Path ("\\" + $ComputerName + "\c$" + $AddinPath))) {
 			Remove-Item -Force ("\\" + $ComputerName + "\c$" + $AddinPath)
 		}
 	}
@@ -142,10 +157,10 @@ function Set-LAPSPassword {
 	[CmdletBinding()]
 	param (
 		[Parameter(Mandatory)]
-		[string]$ComputerName
+		[String]$ComputerName
 	)
 
-	$Password = Get-LAPSADPassword $ComputerName -AsPlainText
+	$Password = Get-LapsADPassword $ComputerName -AsPlainText
 	Write-Host ("Password: " + $Password.Password)
 	Write-Host ("Expiration: " + $Password.ExpirationTimestamp)
 }
@@ -160,7 +175,7 @@ function Test-AdobeLicense {
 	[CmdletBinding()]
 	param(
 		[Parameter(Mandatory)]	
-		[string]$SearchFor
+		[String]$SearchFor
 	)
     (Get-ADGroup -Identity "Adobe Pro Licensed Users" -Properties Member).Member | Select-String -Pattern $SearchFor
 }
@@ -171,6 +186,33 @@ function Test-ElevatedPrivileges {
 	$principal = New-Object Security.Principal.WindowsPrincipal $identity
 	If (-Not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
 		throw "Not running with elevated privileges"
+	}
+}
+
+function Test-EXOModule {
+	If ($null -eq (Get-Module -Name ExchangeOnlineManagement*)) {
+		throw "Exchange Online is not initialized; Install the PowerShell module or run Install-AdminTools"
+	} ElseIf ($null -ne (Get-ConnectionInformation)) {
+		Write-Error "Exchange Online already connected. Disconnecting..."
+		Disconnect-ExchangeOnline -Confirm:$false
+	}
+}
+
+function Test-EXOMoved {
+	[CmdletBinding()]
+	param (
+		[Parameter(Mandatory)]
+		[String]$Email
+	)
+	Test-EXOModule
+	Connect-EXO
+	$Mailbox = Get-EXOMailbox -Identity $Email 2>nul
+	Disconnect-ExchangeOnline -Confirm:$false
+	
+	If ($Mailbox) {
+		Write-Host "$Email is on Exchange Online"
+	} Else {
+		Write-Host "$Email is NOT on Exchange Online"
 	}
 }
 
