@@ -198,6 +198,24 @@ function Test-EXOModule {
 	}
 }
 
+function Test-EXOMoved {
+	[CmdletBinding()]
+	param (
+		[Parameter(Mandatory)]
+		[String]$Email
+	)
+	Test-EXOModule
+	Connect-EXO
+	$Mailbox = Get-EXOMailbox -Identity $Email 2>nul
+	Disconnect-ExchangeOnline -Confirm:$false
+	
+	If ($Mailbox) {
+		Write-Host "$Email is on Exchange Online"
+	} Else {
+		Write-Host "$Email is NOT on Exchange Online"
+	}
+}
+
 function Test-MgGraph {
 	If ($null -eq (Get-Module -Name Microsoft.Graph*)) {
 		throw "Microsoft Graph is not initialized; Install the PowerShell module or run Install-AdminTools"
