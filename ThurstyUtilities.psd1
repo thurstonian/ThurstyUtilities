@@ -51,7 +51,7 @@ PowerShellVersion = '7.0.0'
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-RequiredModules = @("Microsoft.Graph", "ExchangeOnlineManagement")
+RequiredModules = @("Microsoft.Graph.Authentication", "Microsoft.Graph.Identity.SignIns", "ExchangeOnlineManagement")
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
