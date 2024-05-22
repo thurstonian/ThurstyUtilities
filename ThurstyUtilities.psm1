@@ -120,6 +120,22 @@ function Remove-WindowsHelloPin {
 	Remove-Item -Path "C:\WINDOWS\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" -Recurse -Force
 }
 
+function Restart-OneLog {
+	$Path = "\ITS\OneLog\Client\LoginApplication.exe"
+	$Service = Get-Service -Name "ITS Onelog Client"
+	If ($Service.Status -eq "Running") {
+		Restart-Service -InputObject $Service -Force
+	} Else {
+		Start-Service -InputObject $Service
+	}
+	Get-Process -Name LoginApplication | Stop-Process
+	If (Test-Path -Path "$ENV:ProgramFiles$Path") {
+		& "$ENV:ProgramFiles$Path"
+	} ElseIf (Test-Path -Path "${ENV:ProgramFiles(x86)}$Path") {
+		& "${ENV:ProgramFiles(x86)}$Path"
+	}
+}
+
 function Set-LAPSPassword {
 	[CmdletBinding()]
 	param (
