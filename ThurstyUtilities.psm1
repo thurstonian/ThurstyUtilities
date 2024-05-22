@@ -6,7 +6,7 @@ function Add-ExhibitStamps {
 		[Parameter(Mandatory)]
 		[String]$UserName
 	)
-	Copy-Item -Path "\\cozen\deploy\source\Adobe\Pro DC\Exhibit Stamp\Exhibit-Stamp.pdf" -Destination "\\$ComputerName\c$\Users\$UserName\Adobe\Acrobat\DC\Stamps"
+	Copy-Item -Path "\\cozen\deploy\source\Adobe\Pro DC\Exhibit Stamp\Exhibit-Stamp.pdf" -Destination "\\$ComputerName\c$\Users\$UserName\AppData\Roaming\Adobe\Acrobat\DC\Stamps"
 }
 
 function Connect-EXO {
