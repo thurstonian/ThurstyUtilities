@@ -25,7 +25,7 @@ function Get-LAPSAzurePassword {
 		[String]$ComputerName
 	)
 	Test-MgGraph
-	Connect-MgGraph -Scopes "Device.Read.All", "DeviceManagementManagedDevices.Read.All", "DeviceLocalCredential.Read.All"  -NoWelcome
+	Connect-MgGraph -Scopes "Device.Read.All", "DeviceLocalCredential.Read.All" -NoWelcome
 	Get-LapsAADPassword -DeviceIds (Get-MgDevice -Filter "DisplayName eq '$ComputerName'").DeviceId -IncludePasswords -AsPlainText
 	(Disconnect-MgGraph) > nul
 }
