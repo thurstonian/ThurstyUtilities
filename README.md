@@ -48,6 +48,17 @@ Parameters:
 
 Connects to the Exchange Online tenant with the currently signed in user.
 
+### Get-LAPSAzurePassword
+
+Gets the currently active LAPS password for a given computer.
+
+Parameters:
+- ComputerName (Required)
+
+MS Graph Scopes:
+- Device.Read.All (To convert Computer Names into DeviceIDs)
+- DeviceLocalCredential.Read.All (To read plaintext LAPS Passwords)
+
 ### Install-WinGet
 
 Installs the WinGet Package Manager if it's not installed already.
@@ -59,6 +70,9 @@ Generates a new Temporary Access Pass for a given user. Valid for 8 hours.
 Parameters:
 - Email (Required)
 
+MS Graph Scopes:
+- UserAuthenticationMethod.ReadWrite.All (To create new TAP for user)
+
 ### Remove-ReaderAddin
 
 Removes the corrupt Adobe Reader addin (IManAcrobatReader10.api) from a remote computer.
@@ -68,14 +82,13 @@ Parameters:
 
 ### Remove-WindowsHelloPin
 
+**CURRENTLY NOT WORKING, USE AT YOUR OWN RISK**
+
 Attempts to remove Windows Hello pins from the local computer.
 
-### Set-LAPSPassword
+### Restart-OneLog
 
-Gets the currently active LAPS password for a given computer.
-
-Parameters:
-- ComputerName (Required)
+Restarts the ITS OneLog client on the local computer.
 
 ### Stop-Umbrella
 
