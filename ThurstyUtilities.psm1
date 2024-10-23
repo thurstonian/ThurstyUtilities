@@ -8,7 +8,7 @@ function Add-ExhibitStamps {
 		[Parameter(Mandatory)]
 		[String]$UserName
 	)
-	Copy-Item -Path "\\cozen\deploy\source\Adobe\Pro DC\Exhibit Stamp\Exhibit-Stamp.pdf" -Destination "\\$ComputerName\c$\Users\$UserName\AppData\Roaming\Adobe\Acrobat\DC\Stamps"
+	Invoke-WebRequest -Uri "https://www.utd.uscourts.gov/sites/utd/files/Exhibit-Stamp.pdf" -OutFile "\\$ComputerName\c$\Users\$UserName\AppData\Roaming\Adobe\Acrobat\DC\Stamps"
 }
 
 # Helper function to connect to Exchange Online Powershell using currently signed on user
