@@ -17,6 +17,26 @@ function Connect-EXO {
 	Connect-ExchangeOnline -UserPrincipalName ("" + $Identity[1] + "@" + $Identity[0] + ".com") -ShowBanner:$false
 }
 
+# Get the password expiration for any user on any domain
+function Get-PasswordExpiration {
+	[CmdletBinding()]
+	param(
+		[Parameter()]
+		[ValidateSet("cozen.com","nationalsubrogation.com","mha.com","connectbridge.com", IgnoreCase = $true)]
+		[String]$Domain = "cozen.com",
+		[Parameter(Mandatory)]
+		[String]$UserName
+	)
+
+	$Server = (Get-ADDomainController -DomainName $Domain -Discover -NextClosestSite).HostName | Out-String -NoNewline
+	Try {
+		Get-ADUser -Server $Server -Identity $UserName -Properties DisplayName, msDS-UserPasswordExpiryTimeComputed |
+			Select-Object -Property Displayname,@{Name = "Expiration Date";Expression = { [datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed") } }
+	} Catch {
+		Throw "User is not in domain $Domain!"
+	}
+}
+
 # The new LAPS command is slow and sucks. Let's fix that.
 function Get-LAPSAzurePassword {
 	[CmdletBinding()]
