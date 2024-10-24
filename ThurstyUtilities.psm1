@@ -182,7 +182,7 @@ function Test-ElevatedPrivileges {
 	$identity = [Security.Principal.WindowsIdentity]::GetCurrent()
 	$principal = New-Object Security.Principal.WindowsPrincipal $identity
 	If (-Not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-		throw "Not running with elevated privileges"
+		Throw "Not running with elevated privileges"
 	}
 }
 
