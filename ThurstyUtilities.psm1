@@ -167,6 +167,52 @@ function Restart-OneLog {
 	}
 }
 
+function Resize-Video {
+	[CmdletBinding(DefaultParameterSetName = "AbsoluteEndTime")]
+	param (
+		[Parameter()]
+		[ValidatePattern("(\d{1,2}:)+\d{2}")]
+		[String]$StartTime = "00:00:00",
+		[Parameter(ParameterSetName = "AbsoluteEndTime")]
+		[ValidatePattern("(\d{1,2}:)+\d{2}")]
+		[String]$EndTime,
+		[Parameter(ParameterSetName = "RelativeEndTime")]
+		[Int]$TrimSeconds = 0,
+		[Parameter()]
+		[ValidateScript({
+				If (Get-PSDrive HKCR -ErrorAction SilentlyContinue -eq "") { New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT }
+				If (-not (Test-Path -Path $_)) { Throw "Input does not exist" }
+				ElseIf ( -not (Test-Path -Path $_ -PathType Leaf)) { Throw "Input is not a file" }
+				Else { Return $true }
+			})]
+		[String]$InputPathString,
+		[Parameter()]
+		[ValidateScript({
+				If (-not (Test-Path -Path $_ -IsValid)) { Throw "Output Path is Invalid" }
+				ElseIf (-not ($_ -match ".*\.(\w{3,})$")) { Throw "Output Path is not a file!" }
+				Else { Return $true }
+			})]
+		[String]$OutputPathString
+	)
+
+	# Check if ffmpeg/ffprobe are installed
+	If ((Get-Command ffmpeg -ErrorAction SilentlyContinue) -eq "") { Throw "ffmpeg is not installed. Install ffmpeg to use this command." }
+	If ((Get-Command ffprobe -ErrorAction SilentlyContinue) -eq "") { Throw "ffprobe is not installed. Install ffmpeg to use this command." }
+
+	# Parse paths
+	$InputPath = Resolve-Path -Path $InputPathString
+	Resolve-Path -Path $OutputPathString -ErrorAction SilentlyContinue -ErrorVariable _resolvepath
+	$OutputPath = $_resolvepath
+
+	# Verify file is actually a video
+	If (((ffprobe -count_packets -show_entries stream=nb_read_packets -output_format json -v 0 $InputPath) | ConvertFrom-Json).streams.nb_read_packets -eq 1) { Throw "File is not a video" }
+
+	# Calculate EndTime if unset
+	If ($null -eq $EndTime) { $EndTime = ([math]::floor([decimal](ffprobe -v fatal -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 $InputPath)) - $TrimSeconds) }
+
+	ffmpeg -ss $StartTime -to $EndTime -i $InputPath $OutputPath
+}
+
 # Stops all umbrella services on the current computer
 function Stop-Umbrella {
 	Test-ElevatedPrivileges
