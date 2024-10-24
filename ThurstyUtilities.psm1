@@ -98,17 +98,10 @@ function Remove-ReaderAddin {
 	$AddinPath = "\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\plug_ins\IManAcrobatReader10.api"
 
 	Test-ElevatedPrivileges
-
-	# Check for Adobe Reader on local machine
-
+	Write-Host "Checking if Adobe Reader is installed..."
 	$ReaderInstalled = $false
-
-	Write-Host "Fetching remote registry keys..."
 	$BaseKey = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey("LocalMachine", $ComputerName) # Gets remote HKLM Base Key
-
-	If ($null -ne $BaseKey) { Write-Host "Success!" }
-
-	Write-Host "Searching 32Bit Programs..."
+	If ($null -eq $BaseKey) { Throw "Unable to open connection to remote computer. Exiting..." }
 	$32BitKeys = $BaseKey.OpenSubKey("Software\wow6432node\microsoft\Windows\Currentversion\uninstall")
 	ForEach ($Key in $32BitKeys.GetSubKeyNames()) {
 		$SubKey = $32BitKeys.OpenSubKey($Key)
@@ -121,32 +114,27 @@ function Remove-ReaderAddin {
 		$SubKey.Close()
 	}
 	$32BitKeys.Close()
-
-	If (-not $ReaderInstalled) {
-		Write-Host "Searching 64Bit Programs..."
-		$64BitKeys = $BaseKey.OpenSubKey("Software\microsoft\Windows\Currentversion\uninstall")
-		ForEach ($Key in $64BitKeys.GetSubKeyNames()) {
-			$SubKey = $64BitKeys.OpenSubKey($Key)
-			If ($SubKey.GetValue("DisplayName") -like "*Reader*") {
-				Write-Host "Adobe Reader Located!"
-				$ReaderInstalled = $true
-				$SubKey.Close()
-				Break
-			}
-			$SubKey.Close()
-		}
-		$64BitKeys.Close()
-	}
-
 	$BaseKey.Close()
 
-	If ($ReaderInstalled -and (Test-Path ("\\" + $ComputerName + "\c$" + $AddinPath))) {
-		Write-Host "Attempting to remove the Reader addin from the $ComputerName..."
+	If (-not $ReaderInstalled) {
+		Do {
+			$Response = Read-Host -Prompt "Adobe Reader is not installed. Continue Anyway? [Y/N]"
+		} Until (($Response -eq 'n') -or ($Response -eq 'y'))
+		If ($Response -eq 'n') { Write-Host "Exiting..."; Return }
+	}
+
+	Write-Host "Checking for corrupt addin file..."
+	If (Test-Path ("\\" + $ComputerName + "\c$" + $AddinPath)) {
+		Write-Host "Located! Attempting to remove the addin from $ComputerName..."
 		While ((Test-Path ("\\" + $ComputerName + "\c$" + $AddinPath))) {
 			Remove-Item -Force ("\\" + $ComputerName + "\c$" + $AddinPath)
 		}
+	} Else {
+		Write-Host "Reader Addin not detected. Exiting..."
+		Return
 	}
 
+	# Final Check
 	If (-not (Test-Path ("\\" + $ComputerName + "\c$" + $AddinPath))) {
 		Write-Host "Reader addin successfully removed!"
 	}
