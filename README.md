@@ -48,6 +48,14 @@ Parameters:
 
 Connects to the Exchange Online tenant with the currently signed in user.
 
+### Get-PasswordExpiration
+
+Fetches the password expiration date and time of any domain user account across the whole forest.
+
+Parameters:
+- Domain (Optional, Defaults to cozen.com)
+- UserName (Required)
+
 ### Get-LAPSAzurePassword
 
 Gets the currently active LAPS password for a given computer.
