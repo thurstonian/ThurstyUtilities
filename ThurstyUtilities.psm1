@@ -2,7 +2,7 @@
 # Works remotely
 function Add-ExhibitStamps {
 	[CmdletBinding()]
-	param(
+	param (
 		[Parameter(Mandatory)]
 		[String]$ComputerName,
 		[Parameter(Mandatory)]
@@ -20,7 +20,7 @@ function Connect-EXO {
 # Get the password expiration for any user on any domain
 function Get-PasswordExpiration {
 	[CmdletBinding()]
-	param(
+	param (
 		[Parameter()]
 		[ValidateSet("cozen.com","nationalsubrogation.com","mha.com","connectbridge.com", IgnoreCase = $true)]
 		[String]$Domain = "cozen.com",
@@ -40,7 +40,7 @@ function Get-PasswordExpiration {
 # The new LAPS command is slow and sucks. Let's fix that.
 function Get-LAPSAzurePassword {
 	[CmdletBinding()]
-	param(
+	param (
 		[Parameter(Mandatory)]
 		[String]$ComputerName
 	)
@@ -91,7 +91,7 @@ function New-TAP {
 # Removes the Bad iManage Adobe Reader addin from a remote computer
 function Remove-ReaderAddin {
 	[CmdletBinding()]
-	param(
+	param (
 		[Parameter(Mandatory)]
 		[String]$ComputerName
 	)
@@ -177,7 +177,7 @@ function Stop-Umbrella {
 # Checks AD for users who have Adobe Licenses
 function Test-AdobeLicense {
 	[CmdletBinding()]
-	param(
+	param (
 		[Parameter(Mandatory)]	
 		[String]$SearchFor
 	)
