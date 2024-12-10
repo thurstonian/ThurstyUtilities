@@ -17,6 +17,17 @@ function Connect-EXO {
 	Connect-ExchangeOnline -UserPrincipalName ("" + $Identity[1] + "@" + $Identity[0] + ".com") -ShowBanner:$false
 }
 
+# Gets members of a distribution list and translates to email addresses.
+# Currently nonfunctional due to Module requirements.
+# function Get-DistroMembers {
+# 	[CmdletBinding()]
+# 	param (
+# 		[Parameter(Mandatory)]
+# 		[String]$Group
+# 	)
+# 	(Get-DistributionGroupMember -Identity $Group).Name | ForEach-Object { Write-Host (Get-AzADUser -StartsWith $_.Substring(0,($_.Length - 3)).Replace("'","''") ).Mail }
+# }
+
 # The new LAPS command is slow and sucks. Let's fix that.
 function Get-LapsAzurePassword {
 	[CmdletBinding()]
