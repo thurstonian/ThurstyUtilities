@@ -31,7 +31,7 @@ function Get-PasswordExpiration {
 	$Server = (Get-ADDomainController -DomainName $Domain -Discover -NextClosestSite).HostName | Out-String -NoNewline
 	Try {
 		Get-ADUser -Server $Server -Identity $UserName -Properties DisplayName, msDS-UserPasswordExpiryTimeComputed |
-			Select-Object -Property Displayname,@{Name = "Expiration Date";Expression = { [datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed") } }
+		Select-Object -Property Displayname,@{Name = "Expiration Date";Expression = { [datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed") } }
 	} Catch {
 		Throw "User is not in domain $Domain!"
 	}
