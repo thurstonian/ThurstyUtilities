@@ -17,6 +17,19 @@ function Connect-EXO {
 	Connect-ExchangeOnline -UserPrincipalName ("" + $Identity[1] + "@" + $Identity[0] + ".com") -ShowBanner:$false
 }
 
+# The new LAPS command is slow and sucks. Let's fix that.
+function Get-LapsAzurePassword {
+	[CmdletBinding()]
+	param (
+		[Parameter(Mandatory)]
+		[String]$ComputerName
+	)
+	Test-MgGraph
+	Connect-MgGraph -Scopes "Device.Read.All", "DeviceLocalCredential.Read.All" -NoWelcome
+	Get-LapsAADPassword -DeviceIds (Get-MgDevice -Filter "DisplayName eq '$ComputerName'").DeviceId -IncludePasswords -AsPlainText
+	(Disconnect-MgGraph) > nul
+}
+
 # Get the password expiration for any user on any domain
 function Get-PasswordExpiration {
 	[CmdletBinding()]
@@ -35,19 +48,6 @@ function Get-PasswordExpiration {
 	} Catch {
 		Throw "User is not in domain $Domain!"
 	}
-}
-
-# The new LAPS command is slow and sucks. Let's fix that.
-function Get-LAPSAzurePassword {
-	[CmdletBinding()]
-	param (
-		[Parameter(Mandatory)]
-		[String]$ComputerName
-	)
-	Test-MgGraph
-	Connect-MgGraph -Scopes "Device.Read.All", "DeviceLocalCredential.Read.All" -NoWelcome
-	Get-LapsAADPassword -DeviceIds (Get-MgDevice -Filter "DisplayName eq '$ComputerName'").DeviceId -IncludePasswords -AsPlainText
-	(Disconnect-MgGraph) > nul
 }
 
 # Installs the latest version of Winget onto the current computer
