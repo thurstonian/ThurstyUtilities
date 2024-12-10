@@ -4,7 +4,10 @@ If you've found this, you're likely one of my coworkers. Hi! I wrote this becaus
 
 ## Prerequisites
 
-Right now, there's only 3 things this module requires: An updated version of PowerShell, and two Microsoft modules that run as dependencies.
+- Powershell 7
+- Microsoft Graph Module
+- Exchange Online Module
+- ffmpeg (Optional)
 
 To update to the newest version of PowerShell, run the following command in an Admin-Elevated PowerShell window:
 
@@ -22,7 +25,9 @@ You can get the currently imported modules with `Get-Module`, and if you don't s
 
 `Import-Module ExchangeOnlineManagement`
 
-That should leave you all set with the most up to date version of PowerShell and the necessary modules to run this one!
+If you'd like to run the cmdlets for editing video, install ffmpeg using the following command in an Admin-Elevated PowerShell window:
+
+`winget install Gyan.FFmpeg --scope machine`
 
 ## Installing
 
