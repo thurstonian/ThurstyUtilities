@@ -279,7 +279,7 @@ function Test-ElevatedPrivileges {
 # Checks if Exchange Online Powershell is currently connected
 function Test-EXOConnection {
 	If ($null -ne (Get-ConnectionInformation)) {
-		Write-Error "Exchange Online already connected. Disconnecting..."
+		Write-Verbose "Exchange Online already connected. Disconnecting..."
 		Disconnect-ExchangeOnline -Confirm:$false
 	}
 }
@@ -305,7 +305,7 @@ function Test-EXOMoved {
 # Checks if Microsoft Graph is connected
 function Test-MgGraph {
 	If ($null -ne (Get-MgContext)) {
-		Write-Error "Microsoft Graph already connected. Disconnecting..."
+		Write-Verbose "Microsoft Graph already connected. Disconnecting..."
 		Disconnect-MgGraph >nul
 	}
 }
