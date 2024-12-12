@@ -95,7 +95,7 @@ function Install-WinGet {
 	}
 	$WingetUrl = "https://github.com/microsoft/winget-cli/releases/"
 	If ($null -eq (Get-AppxPackage "Microsoft.UI.Xaml.2.8*" -AllUsers)) {
-		Write-Host "Downloading Microsoft UI XAML..."
+		Write-Verbose "Downloading Microsoft UI XAML..."
 		Invoke-WebRequest -Uri "https://www.nuget.org/api/v2/package/Microsoft.UI.Xaml" -OutFile ($env:TEMP + "xaml.zip")
 		Expand-Archive -LiteralPath ($AdminPath + "xaml.zip") -DestinationPath ($env:TEMP + "xaml")
 		Add-AppxPackage ($env:TEMP + "xaml\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.8.appx") -AllUsers
@@ -134,7 +134,7 @@ function Remove-ReaderAddin {
 	$AddinPath = "\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\plug_ins\IManAcrobatReader10.api"
 
 	Test-ElevatedPrivileges
-	Write-Host "Checking if Adobe Reader is installed..."
+	Write-Verbose "Checking if Adobe Reader is installed..."
 	$ReaderInstalled = $false
 	$BaseKey = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey("LocalMachine", $ComputerName) # Gets remote HKLM Base Key
 	If ($null -eq $BaseKey) { Throw "Unable to open connection to remote computer. Exiting..." }
@@ -142,7 +142,7 @@ function Remove-ReaderAddin {
 	ForEach ($Key in $32BitKeys.GetSubKeyNames()) {
 		$SubKey = $32BitKeys.OpenSubKey($Key)
 		If ($SubKey.GetValue("DisplayName") -like "*Reader*") { 
-			Write-Host "Adobe Reader Located!"
+			Write-Verbose "Adobe Reader Located!"
 			$ReaderInstalled = $true
 			$SubKey.Close()
 			Break
@@ -156,17 +156,17 @@ function Remove-ReaderAddin {
 		Do {
 			$Response = Read-Host -Prompt "Adobe Reader is not installed. Continue Anyway? [Y/N]"
 		} Until (($Response -eq 'n') -or ($Response -eq 'y'))
-		If ($Response -eq 'n') { Write-Host "Exiting..."; Return }
+		If ($Response -eq 'n') { Write-Verbose "Exiting..."; Return }
 	}
 
-	Write-Host "Checking for corrupt addin file..."
+	Write-Verbose "Checking for corrupt addin file..."
 	If (Test-Path ("\\" + $ComputerName + "\c$" + $AddinPath)) {
-		Write-Host "Located! Attempting to remove the addin from $ComputerName..."
+		Write-Verbose "Located! Attempting to remove the addin from $ComputerName..."
 		While ((Test-Path ("\\" + $ComputerName + "\c$" + $AddinPath))) {
 			Remove-Item -Force ("\\" + $ComputerName + "\c$" + $AddinPath)
 		}
 	} Else {
-		Write-Host "Reader Addin not detected. Exiting..."
+		Write-Verbose "Reader Addin not detected. Exiting..."
 		Return
 	}
 
