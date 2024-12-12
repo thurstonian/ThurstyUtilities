@@ -13,8 +13,35 @@ function Add-ExhibitStamps {
 
 # Helper function to connect to Exchange Online Powershell using currently signed on user
 function Connect-EXO {
+	Test-EXOConnection
 	$Identity = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name -Split "\\"
 	Connect-ExchangeOnline -UserPrincipalName ("" + $Identity[1] + "@" + $Identity[0] + ".com") -ShowBanner:$false
+}
+
+# Helper function to connect to Microsoft Graph. Tests for already saved access token in the root user folder and uses that.
+function Connect-Graph {
+	[CmdletBinding()]
+	param (
+		[Parameter(ValueFromRemainingArguements=$true)]
+		[String[]]$Scopes
+	)
+
+	# Test for existing MgGraph connection, disconnect if extant
+	Test-MgGraph
+
+	If (Test-Path -Path "~\graphToken") {
+		If ($null -ne $Scopes) {
+			Connect-MgGraph -AccessToken (Get-Content ~\graphToken | ConvertTo-SecureString -AsPlainText -Force) -Scopes $Scopes -NoWelcome
+		} Else {
+			Connect-MgGraph -AccessToken (Get-Content ~\graphToken | ConvertTo-SecureString -AsPlainText -Force) -NoWelcome
+		}
+	} Else {
+		If ($null -ne $Scopes) {
+			Connect-MgGraph -Scopes $Scopes -NoWelcome
+		} Else {
+			Connect-MgGraph -NoWelcome
+		}
+	}
 }
 
 # Gets members of a distribution list and translates to email addresses.
@@ -35,8 +62,7 @@ function Get-LapsAzurePassword {
 		[Parameter(Mandatory)]
 		[String]$ComputerName
 	)
-	Test-MgGraph
-	Connect-MgGraph -Scopes "Device.Read.All", "DeviceLocalCredential.Read.All" -NoWelcome
+	Connect-Graph -Scopes "Device.Read.All", "DeviceLocalCredential.Read.All"
 	Get-LapsAADPassword -DeviceIds (Get-MgDevice -Filter "DisplayName eq '$ComputerName'").DeviceId -IncludePasswords -AsPlainText
 	(Disconnect-MgGraph) > nul
 }
@@ -93,8 +119,7 @@ function New-TAP {
 		isUsableOnce      = $false
 	}
 
-	Test-MgGraph
-	Connect-MgGraph -Scopes "UserAuthenticationMethod.ReadWrite.All" -NoWelcome
+	Connect-Graph -Scopes "UserAuthenticationMethod.ReadWrite.All"
 	Write-Host (New-MgUserAuthenticationTemporaryAccessPassMethod -UserId $Email -BodyParameter ($reqBody | ConvertTo-Json)).TemporaryAccessPass
 	(Disconnect-MgGraph) >nul
 }
@@ -266,7 +291,6 @@ function Test-EXOMoved {
 		[Parameter(Mandatory)]
 		[String]$Email
 	)
-	Test-EXOConnection
 	Connect-EXO
 	$Mailbox = Get-EXOMailbox -Identity $Email 2>nul
 	Disconnect-ExchangeOnline -Confirm:$false
