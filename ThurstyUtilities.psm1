@@ -19,7 +19,7 @@ function Connect-EXO {
 }
 
 # Helper function to connect to Microsoft Graph. Tests for already saved access token in the root user folder and uses that.
-function Connect-Graph {
+function Connect-MSGraph {
 	[CmdletBinding()]
 	param (
 		[Parameter(ValueFromRemainingArguements=$true)]
@@ -62,7 +62,7 @@ function Get-LapsAzurePassword {
 		[Parameter(Mandatory)]
 		[String]$ComputerName
 	)
-	Connect-Graph -Scopes "Device.Read.All", "DeviceLocalCredential.Read.All"
+	Connect-MSGraph -Scopes "Device.Read.All", "DeviceLocalCredential.Read.All"
 	Get-LapsAADPassword -DeviceIds (Get-MgDevice -Filter "DisplayName eq '$ComputerName'").DeviceId -IncludePasswords -AsPlainText
 	(Disconnect-MgGraph) > nul
 }
@@ -119,7 +119,7 @@ function New-TAP {
 		isUsableOnce      = $false
 	}
 
-	Connect-Graph -Scopes "UserAuthenticationMethod.ReadWrite.All"
+	Connect-MSGraph -Scopes "UserAuthenticationMethod.ReadWrite.All"
 	Write-Host (New-MgUserAuthenticationTemporaryAccessPassMethod -UserId $Email -BodyParameter ($reqBody | ConvertTo-Json)).TemporaryAccessPass
 	(Disconnect-MgGraph) >nul
 }
