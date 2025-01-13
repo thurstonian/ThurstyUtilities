@@ -22,7 +22,7 @@ function Connect-EXO {
 function Connect-MSGraph {
 	[CmdletBinding()]
 	param (
-		[Parameter(ValueFromRemainingArguements=$true)]
+		[Parameter()]
 		[String[]]$Scopes
 	)
 
@@ -62,7 +62,7 @@ function Get-LapsAzurePassword {
 		[Parameter(Mandatory)]
 		[String]$ComputerName
 	)
-	Connect-MSGraph -Scopes "Device.Read.All", "DeviceLocalCredential.Read.All"
+	Connect-MSGraph -Scopes @("Device.Read.All", "DeviceLocalCredential.Read.All")
 	Get-LapsAADPassword -DeviceIds (Get-MgDevice -Filter "DisplayName eq '$ComputerName'").DeviceId -IncludePasswords -AsPlainText
 	(Disconnect-MgGraph) > nul
 }
@@ -119,7 +119,7 @@ function New-TAP {
 		isUsableOnce      = $false
 	}
 
-	Connect-MSGraph -Scopes "UserAuthenticationMethod.ReadWrite.All"
+	Connect-MSGraph -Scopes @("UserAuthenticationMethod.ReadWrite.All")
 	Write-Host (New-MgUserAuthenticationTemporaryAccessPassMethod -UserId $Email -BodyParameter ($reqBody | ConvertTo-Json)).TemporaryAccessPass
 	(Disconnect-MgGraph) >nul
 }
