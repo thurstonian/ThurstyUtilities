@@ -103,6 +103,21 @@ Attempts to remove Windows Hello pins from the local computer.
 
 Restarts the ITS OneLog client on the local computer.
 
+### Resize-Video
+
+Wrapper function for ffmpeg, will throw an error if not installed.
+
+Trims a given video file from the given start time to a provided ending time.
+
+If using the TrimSeconds parameter instead of EndTime, an EndTime is calculated by subtracting the amount of seconds given from the length of the video.
+
+Parameters:
+- StartTime (Optional, defaults to beginning of video)
+- EndTime (Required if not using TrimSeconds)
+- TrimSeconds [Integer] (Optional, defaults to 0)
+- InputPathString (Required)
+- OutputPathString (Required)
+
 ### Test-AdobeLicense
 
 Checks in Active Directory to see if a user has been assigned with an Adobe License. Does a pattern match over the Distringuihed Name, so you can search by first name, last name, domain, or organizational unit.

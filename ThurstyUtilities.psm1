@@ -209,12 +209,12 @@ function Resize-Video {
 		[Parameter()]
 		[ValidatePattern("(\d{1,2}:)+\d{2}")]
 		[String]$StartTime = "00:00:00",
-		[Parameter(ParameterSetName = "AbsoluteEndTime")]
+		[Parameter(ParameterSetName = "AbsoluteEndTime", Mandatory)]
 		[ValidatePattern("(\d{1,2}:)+\d{2}")]
 		[String]$EndTime,
 		[Parameter(ParameterSetName = "RelativeEndTime")]
 		[Int]$TrimSeconds = 0,
-		[Parameter()]
+		[Parameter(Mandatory)]
 		[ValidateScript({
 				If (Get-PSDrive HKCR -ErrorAction SilentlyContinue -eq "") { New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT }
 				If (-not (Test-Path -Path $_)) { Throw "Input does not exist" }
@@ -222,7 +222,7 @@ function Resize-Video {
 				Else { Return $true }
 			})]
 		[String]$InputPathString,
-		[Parameter()]
+		[Parameter(Mandatory)]
 		[ValidateScript({
 				If (-not (Test-Path -Path $_ -IsValid)) { Throw "Output Path is Invalid" }
 				ElseIf (-not ($_ -match ".*\.(\w{3,})$")) { Throw "Output Path is not a file!" }
