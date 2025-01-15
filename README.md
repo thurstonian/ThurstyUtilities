@@ -103,10 +103,6 @@ Attempts to remove Windows Hello pins from the local computer.
 
 Restarts the ITS OneLog client on the local computer.
 
-### Stop-Umbrella
-
-Stops all running instances of Cisco Umbrella on the current computer.
-
 ### Test-AdobeLicense
 
 Checks in Active Directory to see if a user has been assigned with an Adobe License. Does a pattern match over the Distringuihed Name, so you can search by first name, last name, domain, or organizational unit.

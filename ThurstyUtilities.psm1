@@ -249,13 +249,6 @@ function Resize-Video {
 	ffmpeg -ss $StartTime -to $EndTime -i $InputPath $OutputPath
 }
 
-# Stops all umbrella services on the current computer
-function Stop-Umbrella {
-	Test-ElevatedPrivileges
-	Get-Service -Name "*umbrellaagent*" | Where-Object { $_.Status -eq "Running" } | Stop-Service
-	Get-Service -Name "*swgagent*" | Where-Object { $_.Status -eq "Running" } | Stop-Service
-}
-
 # Checks AD for users who have Adobe Licenses
 function Test-AdobeLicense {
 	[CmdletBinding()]
