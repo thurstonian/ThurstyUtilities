@@ -74,6 +74,14 @@ MS Graph Scopes:
 - Device.Read.All (To convert Computer Names into DeviceIDs)
 - DeviceLocalCredential.Read.All (To read plaintext LAPS Passwords)
 
+### Get-PasswordExpiration
+
+Fetches the password expiration date and time of any domain user account across the whole forest.
+
+Parameters:
+- Domain (Optional, Defaults to cozen.com)
+- UserName (Required)
+
 ### Install-WinGet
 
 Installs the WinGet Package Manager if it's not installed already.
