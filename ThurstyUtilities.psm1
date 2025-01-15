@@ -30,11 +30,7 @@ function Connect-MSGraph {
 	Test-MgGraph
 
 	If (Test-Path -Path "~\graphToken") {
-		If ($null -ne $Scopes) {
-			Connect-MgGraph -AccessToken (Get-Content ~\graphToken | ConvertTo-SecureString -AsPlainText -Force) -Scopes $Scopes -NoWelcome
-		} Else {
-			Connect-MgGraph -AccessToken (Get-Content ~\graphToken | ConvertTo-SecureString -AsPlainText -Force) -NoWelcome
-		}
+		Connect-MgGraph -AccessToken (Get-Content ~\graphToken | ConvertTo-SecureString -AsPlainText -Force) -NoWelcome
 	} Else {
 		If ($null -ne $Scopes) {
 			Connect-MgGraph -Scopes $Scopes -NoWelcome
@@ -177,8 +173,7 @@ function Remove-ReaderAddin {
 }
 
 # Removes Windows Hello pin from the current computer
-# Doesn't work right now despite testing
-# God help your soul if you try to fix it
+# Probably just needs to be rewritten in CMD/Batch? Or call CMD through PowerShell in a persistant session. Hmm.
 function Remove-WindowsHelloPin {
 	Test-ElevatedPrivileges
 	takeown /f "C:\Windows\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" /r /d y >nul

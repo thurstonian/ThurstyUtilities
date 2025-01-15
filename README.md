@@ -53,13 +53,15 @@ Parameters:
 
 Connects to the Exchange Online tenant with the currently signed in user.
 
-### Get-PasswordExpiration
+### Connect-MSGraph
 
-Fetches the password expiration date and time of any domain user account across the whole forest.
+Helper function to connect to Microsoft Graph.
 
+First tests for already saved access token in the root user folder and uses that, specifically ~/graphToken (which should be stored as a plaintext file (I know this isn't security best practice but shhh it's only temporary I'll set it up to allow reading from a secure string at some point)).
+
+If no access token is detected, it will then check for any scopes passed in, then prompt to connect in the web browser using Microsoft's regular Auth flow.
 Parameters:
-- Domain (Optional, Defaults to cozen.com)
-- UserName (Required)
+- Scopes (Optional)
 
 ### Get-LAPSAzurePassword
 
