@@ -4,7 +4,10 @@ If you've found this, you're likely one of my coworkers. Hi! I wrote this becaus
 
 ## Prerequisites
 
-Right now, there's only 3 things this module requires: An updated version of PowerShell, and two Microsoft modules that run as dependencies.
+- Powershell 7
+- Microsoft Graph Module
+- Exchange Online Module
+- ffmpeg (Optional)
 
 To update to the newest version of PowerShell, run the following command in an Admin-Elevated PowerShell window:
 
@@ -22,7 +25,9 @@ You can get the currently imported modules with `Get-Module`, and if you don't s
 
 `Import-Module ExchangeOnlineManagement`
 
-That should leave you all set with the most up to date version of PowerShell and the necessary modules to run this one!
+If you'd like to run the cmdlets for editing video, install ffmpeg using the following command in an Admin-Elevated PowerShell window:
+
+`winget install Gyan.FFmpeg --scope machine`
 
 ## Installing
 
@@ -48,6 +53,16 @@ Parameters:
 
 Connects to the Exchange Online tenant with the currently signed in user.
 
+### Connect-MSGraph
+
+Helper function to connect to Microsoft Graph.
+
+First tests for already saved access token in the root user folder and uses that, specifically ~/graphToken (which should be stored as a plaintext file (I know this isn't security best practice but shhh it's only temporary I'll set it up to allow reading from a secure string at some point)).
+
+If no access token is detected, it will then check for any scopes passed in, then prompt to connect in the web browser using Microsoft's regular Auth flow.
+Parameters:
+- Scopes (Optional)
+
 ### Get-LAPSAzurePassword
 
 Gets the currently active LAPS password for a given computer.
@@ -58,6 +73,14 @@ Parameters:
 MS Graph Scopes:
 - Device.Read.All (To convert Computer Names into DeviceIDs)
 - DeviceLocalCredential.Read.All (To read plaintext LAPS Passwords)
+
+### Get-PasswordExpiration
+
+Fetches the password expiration date and time of any domain user account across the whole forest.
+
+Parameters:
+- Domain (Optional, Defaults to cozen.com)
+- UserName (Required)
 
 ### Install-WinGet
 
@@ -90,9 +113,20 @@ Attempts to remove Windows Hello pins from the local computer.
 
 Restarts the ITS OneLog client on the local computer.
 
-### Stop-Umbrella
+### Resize-Video
 
-Stops all running instances of Cisco Umbrella on the current computer.
+Wrapper function for ffmpeg, will throw an error if not installed.
+
+Trims a given video file from the given start time to a provided ending time.
+
+If using the TrimSeconds parameter instead of EndTime, an EndTime is calculated by subtracting the amount of seconds given from the length of the video.
+
+Parameters:
+- StartTime (Optional, defaults to beginning of video)
+- EndTime (Required if not using TrimSeconds)
+- TrimSeconds [Integer] (Optional, defaults to 0)
+- InputPathString (Required)
+- OutputPathString (Required)
 
 ### Test-AdobeLicense
 
