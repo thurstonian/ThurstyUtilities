@@ -211,7 +211,7 @@ function Resize-Video {
 		[Int]$TrimSeconds = 0,
 		[Parameter(Mandatory)]
 		[ValidateScript({
-				If (Get-PSDrive HKCR -ErrorAction SilentlyContinue -eq "") { New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT }
+				If ((Get-PSDrive HKCR -ErrorAction SilentlyContinue) -eq "") { New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT }
 				If (-not (Test-Path -Path $_)) { Throw "Input does not exist" }
 				ElseIf ( -not (Test-Path -Path $_ -PathType Leaf)) { Throw "Input is not a file" }
 				Else { Return $true }
@@ -233,7 +233,7 @@ function Resize-Video {
 	# Parse paths
 	$InputPath = Resolve-Path -Path $InputPathString
 	Resolve-Path -Path $OutputPathString -ErrorAction SilentlyContinue -ErrorVariable _resolvepath
-	$OutputPath = $_resolvepath
+	$OutputPath = $_resolvepath[0].TargetObject
 
 	# Verify file is actually a video
 	If (((ffprobe -count_packets -show_entries stream=nb_read_packets -output_format json -v 0 $InputPath) | ConvertFrom-Json).streams.nb_read_packets -eq 1) { Throw "File is not a video" }
