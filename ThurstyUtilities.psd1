@@ -12,10 +12,10 @@
 RootModule = 'ThurstyUtilities.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.2.0'
+ModuleVersion = '0.3.0'
 
 # Supported PSEditions
-CompatiblePSEditions = @("Core")
+CompatiblePSEditions = @("Desktop", "Core")
 
 # ID used to uniquely identify this module
 GUID = 'b99a91e5-8ac9-4078-84b6-65c3b37c9bd5'
@@ -33,7 +33,7 @@ Copyright = '(c) Simon Thurston. All rights reserved.'
 Description = 'Utility cmdlets for common work tasks'
 
 # Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '7.0.0'
+PowerShellVersion = '5.1.0'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
@@ -69,16 +69,16 @@ RequiredModules = @("Microsoft.Graph.Authentication", "Microsoft.Graph.Identity.
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = '*'
+FunctionsToExport = ''
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
-CmdletsToExport = '*'
+CmdletsToExport = ''
 
 # Variables to export from this module
-VariablesToExport = '*'
+VariablesToExport = ''
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = '*'
+AliasesToExport = ''
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()
