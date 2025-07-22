@@ -47,6 +47,8 @@ function Get-DistroMembers {
 		[Parameter(Mandatory)]
 		[String]$Group
 	)
+	Connect-EXO
+	Connect-MSGraph -Scopes @("User.Read.All")
 	(Get-DistributionGroupMember -Identity $Group).Name | ForEach-Object {
 		if (Test-UUID $_.Name) {
 			Get-MgUser -UserId $_.Name
