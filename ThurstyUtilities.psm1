@@ -40,16 +40,22 @@ function Connect-MSGraph {
 	}
 }
 
-# Gets members of a distribution list and translates to email addresses.
-# Currently nonfunctional due to Module requirements.
-# function Get-DistroMembers {
-# 	[CmdletBinding()]
-# 	param (
-# 		[Parameter(Mandatory)]
-# 		[String]$Group
-# 	)
-# 	(Get-DistributionGroupMember -Identity $Group).Name | ForEach-Object { Write-Output (Get-AzADUser -StartsWith $_.Substring(0,($_.Length - 3)).Replace("'","''") ).Mail }
-# }
+# Gets members of a distribution list and translates to ms graph user objects.
+function Get-DistroMembers {
+	[CmdletBinding()]
+	param (
+		[Parameter(Mandatory)]
+		[String]$Group
+	)
+	(Get-DistributionGroupMember -Identity $Group).Name | ForEach-Object {
+		if (Test-UUID $_.Name) {
+			Get-MgUser -UserId $_.Name
+		} else {
+			$ShortName = $_.Name.Substring(0,($_.Name.Length - 3))
+			Get-MgUser -Filter "startswith(DisplayName, '$ShortName')"
+		}
+	}
+}
 
 # The new LAPS command is slow and sucks. Let's fix that.
 function Get-LapsAzurePassword {
@@ -184,7 +190,7 @@ function Remove-RSA {
 	Test-ElevatedPrivilege
 	Write-Verbose "Checking for files..."
 	$FilesToRemove | ForEach-Object {
-		If(Test-Path ($FilePath + "\" + $_)) {
+		if (Test-Path ($FilePath + "\" + $_)) {
 			Write-Verbose "Located $_, attempting to remove..."
 			while (Test-Path ($FilePath + "\" + $_)) {
 				Remove-Item -Force ($FilePath + "\" + $_)
@@ -193,7 +199,7 @@ function Remove-RSA {
 			if (-not (Test-Path ($FilePath + "\" + $_))) {
 				Write-Verbose "$_ successfully removed!"
 			}
-		} Else {
+		} else {
 			Write-Verbose "$_ not found, skipping..."
 		}
 	}
@@ -324,4 +330,14 @@ function Test-MgGraph {
 		Write-Verbose "Microsoft Graph already connected. Disconnecting..."
 		Disconnect-MgGraph >nul
 	}
+}
+
+# Quick test which returns a boolean for if a string is a UUID or not.
+function Test-UUID {
+	[CmdletBinding()]
+	param(
+		[Parameter(Mandatory)]
+		[String]$InputString
+	)
+	return $InputString -match "[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
 }
