@@ -210,12 +210,12 @@ function Remove-RSA {
 
 # Removes Windows Hello pin from the current computer
 # Probably just needs to be rewritten in CMD/Batch? Or call CMD through PowerShell in a persistant session. Hmm.
-function Remove-WindowsHelloPin {
-	Test-ElevatedPrivilege
-	takeown /f "C:\Windows\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" /r /d y >nul
-	icacls "C:\WINDOWS\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" /reset /t /c /l /q
-	Remove-Item -Path "C:\WINDOWS\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" -Recurse -Force
-}
+# function Remove-WindowsHelloPin {
+# 	Test-ElevatedPrivilege
+# 	takeown /f "C:\Windows\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" /r /d y >nul
+# 	icacls "C:\WINDOWS\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" /reset /t /c /l /q
+# 	Remove-Item -Path "C:\WINDOWS\ServiceProfiles\LocalService\AppData\Local\Microsoft\Ngc" -Recurse -Force
+# }
 
 # Restarts Onelog on the current computer
 function Restart-OneLog {
