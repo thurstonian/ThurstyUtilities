@@ -172,6 +172,34 @@ function Remove-ReaderAddin {
 	}
 }
 
+# Removes old RSA VPN configs from a remote machine
+function Remove-RSA {
+	[CmdletBinding()]
+	param(
+		[Parameter(Mandatory)]
+		[String]$ComputerName
+	)
+	$FilesToRemove = @("DCXFX.xml","DCAFX.xml","DCWFX.xml","PHQFX.xml","DCXDirect.xml")
+	$FilePath = "\\" + $ComputerName + "\c$\ProgramData\Cisco\Cisco Secure Client\VPN\Profile"
+	Test-ElevatedPrivilege
+	Write-Verbose "Checking for files..."
+	$FilesToRemove | ForEach-Object {
+		If(Test-Path ($FilePath + "\" + $_)) {
+			Write-Verbose "Located $_, attempting to remove..."
+			while (Test-Path ($FilePath + "\" + $_)) {
+				Remove-Item -Force ($FilePath + "\" + $_)
+			}
+			# Verify file is actually removed
+			if (-not (Test-Path ($FilePath + "\" + $_))) {
+				Write-Verbose "$_ successfully removed!"
+			}
+		} Else {
+			Write-Verbose "$_ not found, skipping..."
+		}
+	}
+	Write-Output "All configurations successfully removed!"
+}
+
 # Removes Windows Hello pin from the current computer
 # Probably just needs to be rewritten in CMD/Batch? Or call CMD through PowerShell in a persistant session. Hmm.
 function Remove-WindowsHelloPin {
